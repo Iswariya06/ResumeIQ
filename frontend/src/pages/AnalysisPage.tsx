@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { UploadCloud, FileText, AlertCircle, X, Loader2, ArrowRight, Sparkles } from 'lucide-react';
+import { UploadCloud, FileText, AlertCircle, X, Loader2 } from 'lucide-react';
 import { FullAnalysisResponse } from '../types';
 import { apiService, ApiError } from '../services/api';
 
@@ -64,12 +64,12 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ onAnalysisSuccess })
     const ext = selectedFile.name.substring(selectedFile.name.lastIndexOf('.')).toLowerCase();
 
     if (!validExts.includes(ext)) {
-      setErrorMessage(`Unsupported format '${ext}'. Please upload a PDF (.pdf) or Word document (.docx).`);
+      setErrorMessage(`Unsupported format '${ext}'. Please upload a PDF or DOCX file.`);
       return;
     }
 
     if (selectedFile.size > 5 * 1024 * 1024) {
-      setErrorMessage('File size exceeds the 5MB limit. Please upload a smaller document.');
+      setErrorMessage('File size exceeds 5MB. Please upload a smaller file.');
       return;
     }
 
@@ -93,11 +93,11 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ onAnalysisSuccess })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      setErrorMessage('Please upload a resume file in PDF or DOCX format.');
+      setErrorMessage('Please upload a resume file.');
       return;
     }
     if (jobDescription.trim().length < 25) {
-      setErrorMessage('Please provide a job description (at least 25 characters required).');
+      setErrorMessage('Please enter a job description (at least 25 characters).');
       return;
     }
 
@@ -105,7 +105,6 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ onAnalysisSuccess })
     setIsLoading(true);
     setLoadingStage(1);
 
-    // Progressive stage feedback
     const stageTimer1 = setTimeout(() => setLoadingStage(2), 700);
     const stageTimer2 = setTimeout(() => setLoadingStage(3), 1600);
 
@@ -116,7 +115,7 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ onAnalysisSuccess })
       if (err instanceof ApiError) {
         setErrorMessage(err.message);
       } else {
-        setErrorMessage(err?.message || 'An error occurred during resume analysis. Please verify your file and try again.');
+        setErrorMessage(err?.message || 'Something went wrong. Please try again.');
       }
     } finally {
       clearTimeout(stageTimer1);
@@ -126,45 +125,27 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ onAnalysisSuccess })
     }
   };
 
-  const charCount = jobDescription.length;
-  const wordCount = jobDescription.trim() ? jobDescription.trim().split(/\s+/).length : 0;
-
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-          Analyze Resume vs Job Description
-        </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-2">
-          Upload your resume file, paste the target job description, and generate dual ATS and Job Match scores.
-        </p>
-      </div>
+    <div className="max-w-3xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold text-gray-900 mb-1">Analyze Resume</h1>
+      <p className="text-sm text-gray-500 mb-6">Upload your resume and paste the job description below.</p>
 
-      {/* Error Alert */}
       {errorMessage && (
-        <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3 text-rose-800 text-xs animate-fadeIn">
-          <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <strong className="block font-bold mb-0.5">Analysis Notice:</strong>
-            {errorMessage}
-          </div>
-          <button onClick={() => setErrorMessage(null)} className="text-rose-500 hover:text-rose-700">
+        <div className="mb-4 p-3 bg-red-50 border border-red-300 rounded flex items-start gap-2 text-sm text-red-700">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <span className="flex-1">{errorMessage}</span>
+          <button onClick={() => setErrorMessage(null)}>
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Step 1: File Upload */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center">
-                1
-              </span>
-              <h3 className="font-bold text-sm text-slate-900">Upload Resume (PDF or Word)</h3>
-            </div>
-            <span className="text-[11px] text-slate-400">Max size: 5 MB</span>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* File Upload */}
+        <div className="bg-white border border-gray-200 rounded p-5">
+          <div className="flex items-center justify-between mb-3">
+            <label className="font-semibold text-sm text-gray-800">1. Upload Resume (PDF or DOCX)</label>
+            <span className="text-xs text-gray-400">Max 5MB</span>
           </div>
 
           {!file ? (
@@ -173,45 +154,34 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ onAnalysisSuccess })
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center ${
-                isDragging
-                  ? 'border-brand-500 bg-brand-50/50'
-                  : 'border-slate-300 hover:border-brand-400 hover:bg-slate-50/50'
+              className={`border-2 border-dashed rounded p-8 text-center cursor-pointer ${
+                isDragging ? 'border-indigo-400 bg-indigo-50' : 'border-gray-300 hover:border-gray-400'
               }`}
             >
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                accept=".pdf,.docx"
                 onChange={handleFileChange}
                 className="hidden"
               />
-              <div className="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center mb-3">
-                <UploadCloud className="w-6 h-6" />
-              </div>
-              <p className="text-xs font-semibold text-slate-700">
-                Drag and drop your resume here, or <span className="text-brand-600 underline">browse files</span>
-              </p>
-              <p className="text-[11px] text-slate-400 mt-1">Supports PDF (.pdf) and Microsoft Word (.docx)</p>
+              <UploadCloud className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">Drag and drop here or <span className="text-indigo-600 underline">browse</span></p>
+              <p className="text-xs text-gray-400 mt-1">PDF or DOCX only</p>
             </div>
           ) : (
-            <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                  <FileText className="w-5 h-5" />
-                </div>
+            <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-indigo-600" />
                 <div>
-                  <div className="font-bold text-xs text-slate-900">{file.name}</div>
-                  <div className="text-[11px] text-slate-400">
-                    {(file.size / 1024).toFixed(1)} KB • Ready for extraction
-                  </div>
+                  <p className="text-sm font-medium text-gray-800">{file.name}</p>
+                  <p className="text-xs text-gray-400">{(file.size / 1024).toFixed(1)} KB</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setFile(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
-                title="Remove file"
+                className="text-gray-400 hover:text-red-500"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -219,81 +189,59 @@ export const AnalysisPage: React.FC<AnalysisPageProps> = ({ onAnalysisSuccess })
           )}
         </div>
 
-        {/* Step 2: Job Description Input */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <div className="flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-700 font-bold text-xs flex items-center justify-center">
-                2
-              </span>
-              <h3 className="font-bold text-sm text-slate-900">Paste Target Job Description</h3>
-            </div>
-            
-            {/* Quick Fill Sample Buttons */}
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] text-slate-400">Quick fill sample:</span>
+        {/* Job Description */}
+        <div className="bg-white border border-gray-200 rounded p-5">
+          <div className="flex items-center justify-between mb-2">
+            <label className="font-semibold text-sm text-gray-800">2. Paste Job Description</label>
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setJobDescription(SAMPLE_JOB_DESCRIPTIONS.fullstack)}
-                className="text-[11px] font-semibold text-brand-600 hover:text-brand-800 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-md transition"
+                className="text-xs text-indigo-600 hover:underline"
               >
-                Full Stack
+                Sample: Full Stack
               </button>
               <button
                 type="button"
                 onClick={() => setJobDescription(SAMPLE_JOB_DESCRIPTIONS.data_science)}
-                className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1 rounded-md transition"
+                className="text-xs text-indigo-600 hover:underline"
               >
-                Data Science
+                Sample: Data Science
               </button>
             </div>
           </div>
 
           <textarea
             rows={8}
-            placeholder="Paste the complete job description here, including required technologies, qualifications, and responsibilities..."
+            placeholder="Paste the job description here..."
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
-            className="w-full text-xs p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-slate-800 leading-relaxed custom-scrollbar"
+            className="w-full text-sm p-3 border border-gray-300 rounded focus:outline-none focus:border-indigo-500 resize-none"
           />
-
-          <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2">
-            <span>Minimum 25 characters required for accurate matching.</span>
-            <span>
-              {wordCount} words • {charCount} chars
-            </span>
-          </div>
+          <p className="text-xs text-gray-400 mt-1">{jobDescription.trim().split(/\s+/).filter(Boolean).length} words</p>
         </div>
 
-        {/* Submit Button & Progress Indicator */}
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={isLoading || !file || jobDescription.trim().length < 25}
-            className={`w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition ${
-              isLoading || !file || jobDescription.trim().length < 25
-                ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                : 'bg-brand-600 hover:bg-brand-700 text-white hover:shadow'
-            }`}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>
-                  {loadingStage === 1 && 'Extracting text and structure...'}
-                  {loadingStage === 2 && 'Computing ATS factors & skill matches...'}
-                  {loadingStage >= 3 && 'Synthesizing AI explanations & report...'}
-                </span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                <span>Run ResumeIQ Analysis</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
-        </div>
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={isLoading || !file || jobDescription.trim().length < 25}
+          className={`w-full py-3 rounded font-semibold text-sm flex items-center justify-center gap-2 ${
+            isLoading || !file || jobDescription.trim().length < 25
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              : 'bg-indigo-600 text-white hover:bg-indigo-700'
+          }`}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              {loadingStage === 1 && 'Extracting text...'}
+              {loadingStage === 2 && 'Computing scores...'}
+              {loadingStage >= 3 && 'Generating feedback...'}
+            </>
+          ) : (
+            'Run Analysis'
+          )}
+        </button>
       </form>
     </div>
   );

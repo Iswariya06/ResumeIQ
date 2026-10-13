@@ -1,6 +1,6 @@
 import React from 'react';
 import { AIExplanationResult } from '../types';
-import { Bot, Lightbulb, CheckCircle2, AlertTriangle, ArrowRight, RefreshCw, Cpu } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface RecommendationsCardProps {
   aiExplanation: AIExplanationResult;
@@ -8,69 +8,40 @@ interface RecommendationsCardProps {
 
 export const RecommendationsCard: React.FC<RecommendationsCardProps> = ({ aiExplanation }) => {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
-      {/* Header with Provider Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm ${
-            aiExplanation.ai_provider === 'ollama' ? 'bg-emerald-600' : 'bg-brand-600'
-          }`}>
-            {aiExplanation.ai_provider === 'ollama' ? <Bot className="w-5 h-5" /> : <Lightbulb className="w-5 h-5" />}
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-slate-900">AI Explanations & Action Plan</h3>
-            <p className="text-xs text-slate-500">
-              Personalized assessment of candidate fit, strengths, and targeted improvements.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
-            aiExplanation.ai_provider === 'ollama'
-              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-              : 'bg-brand-50 text-brand-700 border-brand-200'
-          }`}>
-            <Cpu className="w-3.5 h-3.5" />
-            <span>{aiExplanation.model_name}</span>
-          </span>
-        </div>
+    <div className="bg-white border border-gray-200 rounded p-5 space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+        <h3 className="font-semibold text-gray-800">AI Feedback & Recommendations</h3>
+        <span className="text-xs text-gray-400 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded">
+          {aiExplanation.ai_provider === 'ollama' ? aiExplanation.model_name : 'Rule-based engine'}
+        </span>
       </div>
 
-      {/* Executive Summary */}
-      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm text-slate-700 leading-relaxed">
-        <strong>Overview:</strong> {aiExplanation.summary}
+      {/* Summary */}
+      <div className="p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
+        {aiExplanation.summary}
       </div>
 
-      {/* Strengths & Weaknesses 2-Column Grid */}
+      {/* Strengths & Gaps */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Strengths */}
-        <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5 mb-3">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Key Strengths ({aiExplanation.strengths.length})</span>
-          </h4>
-          <ul className="space-y-2 text-xs text-emerald-900">
-            {aiExplanation.strengths.map((str, idx) => (
-              <li key={idx} className="flex items-start gap-2">
-                <span className="text-emerald-500 font-bold">•</span>
-                <span>{str}</span>
+        <div className="border border-green-200 rounded p-4 bg-green-50">
+          <h4 className="text-xs font-semibold text-green-800 uppercase mb-2">Strengths</h4>
+          <ul className="space-y-1.5 text-xs text-green-900">
+            {aiExplanation.strengths.map((s, i) => (
+              <li key={i} className="flex items-start gap-1.5">
+                <span className="text-green-600 font-bold mt-0.5">•</span>
+                {s}
               </li>
             ))}
           </ul>
         </div>
-
-        {/* Identified Gaps */}
-        <div className="bg-rose-50/40 border border-rose-200 rounded-xl p-4">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-rose-800 flex items-center gap-1.5 mb-3">
-            <AlertTriangle className="w-4 h-4 text-rose-600" />
-            <span>Identified Gaps ({aiExplanation.weaknesses.length})</span>
-          </h4>
-          <ul className="space-y-2 text-xs text-rose-900">
-            {aiExplanation.weaknesses.map((weak, idx) => (
-              <li key={idx} className="flex items-start gap-2">
-                <span className="text-rose-500 font-bold">•</span>
-                <span>{weak}</span>
+        <div className="border border-red-200 rounded p-4 bg-red-50">
+          <h4 className="text-xs font-semibold text-red-800 uppercase mb-2">Gaps</h4>
+          <ul className="space-y-1.5 text-xs text-red-900">
+            {aiExplanation.weaknesses.map((w, i) => (
+              <li key={i} className="flex items-start gap-1.5">
+                <span className="text-red-500 font-bold mt-0.5">•</span>
+                {w}
               </li>
             ))}
           </ul>
@@ -79,61 +50,38 @@ export const RecommendationsCard: React.FC<RecommendationsCardProps> = ({ aiExpl
 
       {/* Recommendations */}
       <div>
-        <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3">
-          <Lightbulb className="w-4 h-4 text-amber-500" />
-          <span>Priority Resume Optimizations</span>
-        </h4>
-        <div className="space-y-2.5">
+        <h4 className="text-sm font-semibold text-gray-800 mb-2">What to Improve</h4>
+        <div className="space-y-2">
           {aiExplanation.improvement_recommendations.map((rec, idx) => (
-            <div
-              key={idx}
-              className="flex items-start gap-3 p-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition text-xs text-slate-700"
-            >
-              <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-700 font-bold text-[11px] flex items-center justify-center shrink-0">
+            <div key={idx} className="flex items-start gap-2 p-2.5 border border-gray-200 rounded text-xs text-gray-700 bg-gray-50">
+              <span className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 font-bold text-[10px] flex items-center justify-center shrink-0">
                 {idx + 1}
               </span>
-              <span>{rec}</span>
+              {rec}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Suggested Bullet Point Rewrites (STAR Method) */}
+      {/* Bullet Rewrites */}
       {aiExplanation.suggested_bullet_rewrites.length > 0 && (
-        <div className="pt-2">
-          <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2 mb-3">
-            <RefreshCw className="w-4 h-4 text-brand-600" />
-            <span>Suggested Bullet Point Rewrites (STAR Impact Framework)</span>
-          </h4>
-          <div className="space-y-4">
+        <div>
+          <h4 className="text-sm font-semibold text-gray-800 mb-2">Bullet Point Suggestions</h4>
+          <div className="space-y-3">
             {aiExplanation.suggested_bullet_rewrites.map((rewrite, idx) => (
-              <div
-                key={idx}
-                className="rounded-xl border border-slate-200 overflow-hidden bg-slate-50/50"
-              >
-                {/* Original */}
-                <div className="p-3 bg-rose-50/60 border-b border-rose-100 text-xs">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-rose-700 mb-1">
-                    Original Resume Phrasing
-                  </div>
-                  <div className="text-rose-900 line-through opacity-85">
-                    "{rewrite.original}"
-                  </div>
+              <div key={idx} className="border border-gray-200 rounded overflow-hidden text-xs">
+                <div className="p-2.5 bg-red-50 border-b border-red-100">
+                  <p className="text-[10px] font-semibold text-red-600 uppercase mb-0.5">Original</p>
+                  <p className="text-red-800 line-through">"{rewrite.original}"</p>
                 </div>
-
-                {/* Suggested */}
-                <div className="p-3 bg-emerald-50/60 border-b border-emerald-100 text-xs">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1 mb-1">
-                    <ArrowRight className="w-3 h-3" /> Recommended STAR Enhancement
-                  </div>
-                  <div className="text-emerald-950 font-medium">
-                    "{rewrite.suggested}"
-                  </div>
+                <div className="p-2.5 bg-green-50 border-b border-green-100">
+                  <p className="text-[10px] font-semibold text-green-700 uppercase mb-0.5 flex items-center gap-1">
+                    <ArrowRight className="w-3 h-3" /> Suggested
+                  </p>
+                  <p className="text-green-900 font-medium">"{rewrite.suggested}"</p>
                 </div>
-
-                {/* Reason */}
-                <div className="p-2.5 bg-white text-[11px] text-slate-500 italic">
-                  <strong>Why this scores higher:</strong> {rewrite.reason}
+                <div className="p-2 bg-white text-gray-500 italic">
+                  Why: {rewrite.reason}
                 </div>
               </div>
             ))}
@@ -141,10 +89,9 @@ export const RecommendationsCard: React.FC<RecommendationsCardProps> = ({ aiExpl
         </div>
       )}
 
-      {/* Academic Disclaimer */}
-      <div className="text-[11px] text-slate-400 border-t border-slate-100 pt-3">
+      <p className="text-[11px] text-gray-400 border-t border-gray-100 pt-3">
         {aiExplanation.disclaimer}
-      </div>
+      </p>
     </div>
   );
 };
